@@ -15,7 +15,7 @@ import java.lang.reflect.Method;
 public class PluginResProvider {
 
     public static String getPkg(Context context,String skinApkPath){
-        PackageInfo packageInfo = context.getPackageManager().getPackageArchiveInfo(skinApkPath, PackageManager.GET_UNINSTALLED_PACKAGES);
+        PackageInfo packageInfo = context.getPackageManager().getPackageArchiveInfo(skinApkPath, PackageManager.GET_ACTIVITIES);
         return packageInfo !=null? packageInfo.packageName : null;
     }
 

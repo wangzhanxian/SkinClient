@@ -10,6 +10,7 @@ import android.view.View;
 
 import com.wzx.skinmanager.fetchers.ColorResFetcher;
 import com.wzx.skinmanager.fetchers.DrawableResFetcher;
+import com.wzx.skinmanager.fetchers.LayoutFetcher;
 import com.wzx.skinmanager.fetchers.ResFetcher;
 import com.wzx.skinmanager.fetchers.ResFetcherM;
 import com.wzx.skinmanager.viewconverts.ConvertM;
@@ -32,7 +33,7 @@ public class SkinCenter {
 
     private static final String TAG = SkinCenter.class.getSimpleName();
     private static SkinCenter skinCenter;
-    private WeakHashMap<View, SparseArray<ViewAttr>> cacheMap = new WeakHashMap<>();
+    private WeakHashMap<Object, SparseArray<ViewAttr>> cacheMap = new WeakHashMap<>();
     private ResProxy mResProxy;
 
     private SkinCenter() {
@@ -48,6 +49,10 @@ public class SkinCenter {
         return skinCenter;
     }
 
+
+    /** 初始化
+     * @param context
+     */
     public void init(Context context) {
         mResProxy = new ResProxy(context.getApplicationContext());
         loadPlugin(context);
@@ -57,7 +62,9 @@ public class SkinCenter {
      * 添加默认的资源解析器
      */
     private void addDefaultFetchers() {
-        addFetcher(new ColorResFetcher()).addFetcher(new DrawableResFetcher());
+        addFetcher(new ColorResFetcher())
+                .addFetcher(new DrawableResFetcher())
+                .addFetcher(new LayoutFetcher());
     }
 
     public SkinCenter addFetcher(ResFetcher fetcher) {
@@ -126,18 +133,18 @@ public class SkinCenter {
         notifySkinChanged();
     }
 
-    public <V extends View> void apply(V view, int resId, String convertName) {
+    public <V> void apply(V view, int resId, String convertName) {
         apply(view, resId, ConvertM.getConvert(convertName));
     }
 
-    public <V extends View> void apply(V view, int resId, IViewConvert convert) {
+    public <V> void apply(V view, int resId, IViewConvert convert) {
         if (mResProxy == null) {
-            init(view.getContext());
+            throw new RuntimeException("please call init method");
         }
         applyAndRegist(view, resId, convert);
     }
 
-    private <T,V extends View> void applyAndRegist(V view, int resId, IViewConvert convert) {
+    private <T,V> void applyAndRegist(V view, int resId, IViewConvert convert) {
         SparseArray<ViewAttr> attrs = cacheMap.get(view);
         if (attrs != null) {
             ViewAttr viewAttr = attrs.get(resId);
@@ -165,7 +172,7 @@ public class SkinCenter {
         Iterator it = cacheMap.entrySet().iterator();
         while (it.hasNext()) {
             Map.Entry entry = (Map.Entry) it.next();
-            View view = (View) entry.getKey();
+            Object view = entry.getKey();
             SparseArray<ViewAttr> attrs = (SparseArray<ViewAttr>) entry.getValue();
             for (int i = 0; i < attrs.size(); i++) {
                 attrs.valueAt(i).apply(view, mResProxy);

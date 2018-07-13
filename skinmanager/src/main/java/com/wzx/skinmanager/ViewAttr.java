@@ -10,7 +10,7 @@ import com.wzx.skinmanager.viewconverts.IViewConvert;
  * Created by WangZhanXian on 2018/6/25.
  */
 
-public class ViewAttr<T, V extends View> {
+public class ViewAttr<T, V> {
     private static final String TAG = ViewAttr.class.getSimpleName();
     /***
      * 宿主中的资源真实id
